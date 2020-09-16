@@ -43,7 +43,7 @@ const STORE = {
     { question: 'What is 1/10 of 5/6?',
      answers: ['0.08', '0.7', '0.9', '0.0833'],
       correctAnswer: 3 }, 
-    { question: 'An integer from 100 through 999, inclusive, is to be chosen at random. What is the probability that the number chosen will have at 0 as least 1 digit?',
+    { question: 'An integer from 100 through 999, inclusive, is to be chosen at random. What is the probability that the number chosen will have a 0 in at least 1 digit?',
      answers: ['19/900', '81/900', '90/900', '171/900'], correctAnswer: 3 }],
 
   score: 0,
