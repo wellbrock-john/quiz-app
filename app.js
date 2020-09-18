@@ -32,112 +32,107 @@ const STORE = {
   hasFeedback: false
 };
 
-function render() {
-  $('#start').hide();
-  $('#quiz').hide();
-  $('#feedback').hide();
-  $('#summary').hide();
-  $('header').hide();
+function generateQuestionElements(answers) {
+  let answerChoices = '';
+  answers.forEach((answer, i) => {
+  answerChoices += `<input type="radio" name="choice" value="${i}" id="${i}"/>
+  <label for="${i}">${answer}</label><br/>`;
+});
+return answerChoices;
+}
 
+function generateQuizElementsString(question, answers, score, totalQuestions, questionNumber) {
+  let options = generateQuestionElements(answers);
+  
+  return `<p class="score">Score: ${score}/${totalQuestions}</p>
+  <p class="progress">${questionNumber + 1}/${totalQuestions}</p>
+  <section id="quiz">
+  <form>  
+    <h2>${question}</h2>
+    <fieldset id="choices" tabindex=0>${options}</fieldset>
+    <input type="submit" value="Submit Answer" aria-label="Submit Answer" />
+  </form>
+</section>`;
+}
 
-  if (!STORE.started) {
-    $('#start').show();
-  } else if (STORE.hasFeedback) {
-    renderHeader();
-    renderFeedback();
-  } else if (STORE.currentQuestion < STORE.questions.length) {
-    renderHeader();
-    renderQuestion();
+function generateStartElementString() {
+  return `<section id="start">
+  <h2>Welcome to Math Quiz</h2>
+  <button id="start-quiz">Start</button>
+</section>`;
+}
+
+function generateFeedbackElementString(feedback, guess, answer, score, totalQuestions, questionNumber) {
+  let incorrectStyle = '';
+  let guessString = `Your answer: ${guess}`;
+  let answerString = `The correct answer: ${answer}`;
+  let output = `<p class="user-answer">${guessString}</p>
+  <p class="correct-answer">${answerString}</p>`;
+
+  if (feedback === 'Incorrect') {
+      incorrectStyle = 'class="incorrect"';
   } else {
-    renderSummary();
+      output = `<p class="correct-answer">${answerString}</p>`;
   }
+
+  return `
+  <p class="score">Score: ${score}/${totalQuestions}</p>
+  <p class="progress">${questionNumber + 1}/${totalQuestions}</p>
+  <section id="feedback">
+  <h2 ${incorrectStyle}>${feedback}</h2>
+  ${output}
+  <button id="next">Next Question</button>
+</section>`;
 }
 
-
-function renderBaseElements() {
-  let headerElements = `
-  <p class="score">Score:</p>
-  <p class="progress">0/0</p>
-  `;
-  $('header').append(headerElements);
-  let bodyElements = `
-    <section id="start">
-      <h2>Welcome to Math Quiz</h2>
-      <button id="start-quiz">Start</button>
-    </section>
-
-    <section id="quiz">
-      <form>  
-        <h2>placeholder</h2>
-        <fieldset id="choices" tabindex=0><legend>Question</legend></fieldset>
-        <input type="submit" value="Submit Answer" aria-label="Submit Answer" />
-      </form>
-    </section>
-
-    <section id="feedback">
-      <h2>placeholder</h2>
-      <p class="user-answer"></p>
-      <p class="correct-answer"></p>
-      <button id="next">Next Question</button>
-    </section>
-
-    <section id="summary">
-      <h2>Summary</h2>
-      <p></p>
-      <button id="restart">Restart Quiz</button>
-    </section>
-  `;
-  $('main').append(bodyElements);
+function generateSummaryElementString(score, totalQuestions) {
+  return `<section id="summary">
+  <h2>Summary</h2>
+  <p>Your score is ${score}/${totalQuestions}</p>
+  <button id="restart">Restart Quiz</button>
+</section>`;
 }
 
-function renderHeader() {
-  $('header').show();
-  $('header .score').text(`Score: ${STORE.score}/${STORE.questions.length}`);
-  $('header .progress').text(`Question: ${STORE.currentQuestion + 1}/${STORE.questions.length}`);
+function render() {
+  let score = STORE.score;
+  let totalQuestions = STORE.questions.length;
+  let questionNumber = STORE.currentQuestion;
+  let page = '';
+  console.log(STORE.currentQuestion);
+  console.log(STORE.questions.length);
+  if (!STORE.started) {
+    console.log(STORE.started);
+      page = generateStartElementString();
+    } else if (STORE.hasFeedback) {
+      console.log('aa');
+        let feedback = STORE.hasFeedback;
+        let guess = STORE.guess;
+        let answer = STORE.questions[STORE.currentQuestion].correctAnswer;
+      page = generateFeedbackElementString(feedback, guess, answer, score, totalQuestions, questionNumber);
+    } else if (STORE.currentQuestion < STORE.questions.length) {
+      console.log('aaa');
+        let question = STORE.questions[STORE.currentQuestion].question;
+        let answers = STORE.questions[STORE.currentQuestion].answers;
+        page = generateQuizElementsString(question, answers, score, totalQuestions, questionNumber);
+    } else {
+      console.log('aaaa');
+      page = generateSummaryElementString(score, totalQuestions);
+    }
+    $("main").html(page);
 }
-
-function renderQuestion() {
-  $('#quiz').show();
-  const question = STORE.questions[STORE.currentQuestion];
-  $('#quiz h2').text(question.question);
-  $('#choices').html('');
-  question.answers.forEach((answer, i) => {
-    $('#choices').append(`
-        <input type="radio" name="choice" value="${i}" id="${i}"/>
-        <label for="${i}">${answer}</label><br/>
-      `);
-  });
-}
-
-function renderFeedback() {
-  $('#feedback').show();
-  $('#feedback h2').removeClass('incorrect');
-  $('#feedback h2').text(STORE.hasFeedback);
-  $('.user-answer').text('');
-  const question = STORE.questions[STORE.currentQuestion];
-  if (STORE.hasFeedback === 'Incorrect') {
-    $('.user-answer').text(`Your answer: ${STORE.guess}`);
-    $('#feedback h2').addClass('incorrect');
-  }
-  $('.correct-answer').text(`The correct answer: ${question.answers[question.correctAnswer]}`);
-}
-
-function renderSummary() {
-  $('#summary').show();
-  $('#summary p').text(`Your score is ${STORE.score}/${STORE.questions.length}`);
-}
-
 
 /* listening to events */
 function startQuiz() {
-  $('#start-quiz').click(() => {
+  
+  $('main').on('click', '#start-quiz', ()  => {
+    console.log('aaab');
     STORE.started = true;
     render();
   });
 }
 
 function submitChoice() {
-  $('#quiz form').submit(e => {
+  $('main').on ('submit', '#quiz form', e => {
     e.preventDefault();
     if (!$('input[type="radio"]:checked').val()) {
       alert('No answer selected');
@@ -157,7 +152,7 @@ function submitChoice() {
 }
 
 function nextQuestion() {
-  $('#next').click(() => {
+  $('main').on ('click', '#next', () => {
     STORE.hasFeedback = false;
     STORE.currentQuestion = STORE.currentQuestion + 1;
     render();
@@ -165,7 +160,7 @@ function nextQuestion() {
 }
 
 function restartQuiz() {
-  $('#restart').click(() => {
+  $('main').on ('click', '#restart', () => {
     STORE.started = false;
     STORE.score = 0;
     STORE.currentQuestion = 0;
@@ -174,7 +169,6 @@ function restartQuiz() {
 }
 
 function main() {
-  renderBaseElements();
   startQuiz();
   submitChoice();
   nextQuestion();
