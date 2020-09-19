@@ -65,7 +65,7 @@ function generateStartElementString() {
 function generateFeedbackElementString(feedback, guess, answer, score, totalQuestions, questionNumber) {
   let incorrectStyle = '';
   let guessString = `Your answer: ${guess}`;
-  let answerString = `The correct answer: ${answer}`;
+  let answerString = `The correct answer was option: ${answer + 1}`;
   let output = `<p class="user-answer">${guessString}</p>
   <p class="correct-answer">${answerString}</p>`;
 
